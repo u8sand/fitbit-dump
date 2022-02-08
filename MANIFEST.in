@@ -1,0 +1,2 @@
+include README.md LICENSE fitbit_dump/VERSION requirements.txt
+recursive-exclude * __pycache__ *.pyc
