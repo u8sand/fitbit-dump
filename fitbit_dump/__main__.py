@@ -331,7 +331,7 @@ def init():
     https://dev.fitbit.com/apps/new. No one checks so you can put random name and urls like "example.com"
     for terms of service and the like. The only important options are:
     - OAuth 2.0 Application Type: Personal
-    - Redirect URL: https://127.0.0.1:8080
+    - Redirect URL: https://localhost:8080
     - Default Access Type: Read Only
     When you've done this, you should use the information the site gives you to fill out the next prompts.
   '''.strip()))
