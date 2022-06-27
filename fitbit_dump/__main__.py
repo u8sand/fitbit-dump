@@ -20,6 +20,7 @@ import dotenv
 CHUNK_SIZE = 8192
 
 default_env = {
+  'FITBIT_AUTHORIZATION': None,
   'FITBIT_CLIENT_ID': None,
   'FITBIT_CLIENT_SECRET': None,
   'FITBIT_REDIRECT_URI': 'https://localhost:8080',
