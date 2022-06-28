@@ -36,8 +36,8 @@ def click_option(*args, envvar=None, default=None, **kwargs):
   def decorator(func):
     @click.option(*args, envvar=envvar, default=default or default_env.get(envvar), **kwargs)
     @functools.wraps(func)
-    def wrapper(*func):
-      return func(**kwargs)
+    def wrapper(**func_kwargs):
+      return func(**func_kwargs)
     return wrapper
   return decorator
 
