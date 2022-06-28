@@ -226,7 +226,7 @@ async def oauth2_refresh(
       return auth
 
 async def oauth2_flow(**kwargs):
-  envfile = dotenv.find_dotenv('.env')
+  envfile = pathlib.Path('.env')
   auth = dotenv.dotenv_values(envfile).get('FITBIT_AUTHORIZATION')
   if auth is None:
     auth = await oauth2_authorize(**kwargs)
