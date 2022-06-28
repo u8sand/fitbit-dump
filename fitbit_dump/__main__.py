@@ -20,7 +20,6 @@ import dotenv
 CHUNK_SIZE = 8192
 
 default_env = {
-  'FITBIT_AUTHORIZATION': None,
   'FITBIT_CLIENT_ID': None,
   'FITBIT_CLIENT_SECRET': None,
   'FITBIT_REDIRECT_URI': 'https://localhost:8080',
@@ -108,7 +107,7 @@ async def adhoc_ssl_context(
 
   if protocol is None:
       protocol = ssl.PROTOCOL_TLS_SERVER
-  
+
   ctx = ssl.SSLContext(protocol)
   ctx.load_cert_chain(cert_file, pkey_file)
 
@@ -142,7 +141,7 @@ async def oauth2_redirect_capture_code(redirect_uri=None, **_kwargs):
       else:
         raise aiohttp.web.HTTPNotFound
     app.add_routes(routes)
-    
+
     runner = aiohttp.web.AppRunner(app)
     await runner.setup()
     logging.info(f"Starting redirect server on https://{host}:{port}...")
@@ -227,11 +226,14 @@ async def oauth2_refresh(
       return auth
 
 async def oauth2_flow(**kwargs):
-  envfile = dotenv.find_dotenv('.env')
+  #envfile = dotenv.find_dotenv()
+  envfile = pathlib.Path('.env')
   auth = dotenv.dotenv_values(envfile).get('FITBIT_AUTHORIZATION')
   if auth is None:
     auth = await oauth2_authorize(**kwargs)
     auth['ts'] = dt.datetime.now().timestamp()
+    print(json.dumps(auth))
+    print(envfile)
     dotenv.set_key(envfile, 'FITBIT_AUTHORIZATION', json.dumps(auth))
   elif type(auth) == str:
     auth = json.loads(auth)
@@ -302,11 +304,11 @@ async def fetch_activity_tcx(activity, auth=None, activity_directory=pathlib.Pat
 def cli(): pass
 
 def shared_opts(func):
-  @click_option('--client-id', envvar='FITBIT_CLIENT_ID', type=str, required=True)
-  @click_option('--client-secret', envvar='FITBIT_CLIENT_SECRET', type=str, required=True)
-  @click_option('--redirect-uri', envvar='FITBIT_REDIRECT_URI', type=str)
-  @click_option('--authorization-uri', envvar='FITBIT_AUTHORIZATION_URI', type=str)
-  @click_option('--token-uri', envvar='FITBIT_TOKEN_URI', type=str)
+  @click.option('--client-id', envvar='FITBIT_CLIENT_ID', type=str, required=False)
+  @click.option('--client-secret', envvar='FITBIT_CLIENT_SECRET', type=str, required=False)
+  @click.option('--redirect-uri', envvar='FITBIT_REDIRECT_URI', type=str)
+  @click.option('--authorization-uri', envvar='FITBIT_AUTHORIZATION_URI', type=str)
+  @click.option('--token-uri', envvar='FITBIT_TOKEN_URI', type=str)
   @functools.wraps(func)
   def wrapper(**kwargs):
     return func(**kwargs)
