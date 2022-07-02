@@ -288,7 +288,15 @@ async def fetch_activity_tcx(activity, auth=None, activity_directory=pathlib.Pat
     async with session.get(activity['tcxLink'], headers={'Authorization': f"Bearer {auth}"}) as req:
       with outfile.open('wb') as fw:
         async for chunk in req.content.iter_chunked(CHUNK_SIZE):
-          fw.write(chunk)
+          if chunk.decode() == 'Too Many Requests': # checking if reached API limits
+            print("Reached 150/hour request limit, waiting...")
+            logging.debug(f"Reached maximum hourly API requests. waiting...")
+
+            await asyncio.sleep(3610)
+            await fetch_activity_tcx(activity, auth, activity_directory)
+            return
+          else:
+            fw.write(chunk)
 
 # CLI
 
