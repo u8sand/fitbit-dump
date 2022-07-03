@@ -29,12 +29,12 @@ default_env = {
 
 # Utils
 
-def click_option(*args, envvar=None, default=None, **kwargs):
+def click_option(*args, envvar=None, default=None, show_default=True, **kwargs):
   ''' Wrap click.option providing default from default_env given envvar
   '''
   assert envvar is not None
   def decorator(func):
-    @click.option(*args, envvar=envvar, default=default or default_env.get(envvar), **kwargs)
+    @click.option(*args, envvar=envvar, default=default or default_env.get(envvar), show_default=show_default, **kwargs)
     @functools.wraps(func)
     def wrapper(**func_kwargs):
       return func(**func_kwargs)
