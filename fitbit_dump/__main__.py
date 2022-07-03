@@ -247,6 +247,8 @@ async def oauth2_flow(**kwargs):
 
 # Fitbit APIs
 
+class TooManyRequests(Exception): pass
+
 async def get_activity_log_list(api_url='https://api.fitbit.com', api_version='1', user_id='-', auth=None, date=None, sort='desc'):
   assert auth is not None
   logging.info(f"Getting activity log list...")
@@ -282,13 +284,25 @@ async def fetch_activity_tcx(activity, auth=None, activity_directory=pathlib.Pat
   if outfile.exists():
     logging.debug(f"{activity} tcx already downloaded. Skipping")
     return
-  logging.info(f"Fetching activity tcx for {activity}...")
-  await asyncio.sleep(0.5)
-  async with aiohttp.ClientSession() as session:
-    async with session.get(activity['tcxLink'], headers={'Authorization': f"Bearer {auth}"}) as req:
-      with outfile.open('wb') as fw:
-        async for chunk in req.content.iter_chunked(CHUNK_SIZE):
-          fw.write(chunk)
+  while True:
+    logging.info(f"Fetching activity tcx for {activity}...")
+    await asyncio.sleep(0.5)
+    async with aiohttp.ClientSession() as session:
+      try:
+        async with session.get(activity['tcxLink'], headers={'Authorization': f"Bearer {auth}"}) as req:
+          if req.status != 200:
+            error = (await req.content.read()).decode()
+            if error == 'Too Many Requests':
+              raise TooManyRequests()
+            else:
+              raise Exception(error)
+          with outfile.open('wb') as fw:
+            async for chunk in req.content.iter_chunked(CHUNK_SIZE):
+              fw.write(chunk)
+          break
+      except TooManyRequests:
+        logging.warning(f"Reached maximum hourly API requests. Waiting an hour before retry...")
+        await asyncio.sleep(3610)
 
 # CLI
 
