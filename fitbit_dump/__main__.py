@@ -209,6 +209,7 @@ async def oauth2_refresh(
   assert auth is not None
   logging.info(f"Getting token...")
   payload = dict(
+    client_id=client_id,
     refresh_token=auth['refresh_token'],
     grant_type='refresh_token',
   )
