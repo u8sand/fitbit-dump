@@ -331,10 +331,8 @@ def init():
   '''
   import textwrap
   logging.info('Identifying any existing dotenv...')
-  current_dotenv = dotenv.find_dotenv()
-  if not current_dotenv:
-    current_dotenv = pathlib.Path('.env')
-    current_dotenv.touch()
+  current_dotenv = pathlib.Path('.env')
+  current_dotenv.touch()
   current_values = {
     k: v
     for k, v in dotenv.dotenv_values(current_dotenv).items()
@@ -356,7 +354,7 @@ def init():
       current_values[key] = new_value
       dotenv.set_key(current_dotenv, key, new_value, quote_mode='never')
   #
-  dotenv.load_dotenv()
+  dotenv.load_dotenv(current_dotenv)
   #
   asyncio.new_event_loop().run_until_complete(oauth2_flow(
     authorization_uri=current_values['FITBIT_AUTHORIZATION_URI'],
