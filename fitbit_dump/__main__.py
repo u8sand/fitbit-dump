@@ -393,5 +393,5 @@ async def dump_01_activity_tcx(activity_log_file: pathlib.Path=None, activity_di
 if __name__ == '__main__':
   import logging
   logging.basicConfig(level=logging.INFO)
-  dotenv.load_dotenv()
+  dotenv.load_dotenv('.env')
   cli()
