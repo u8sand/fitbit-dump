@@ -226,13 +226,14 @@ async def oauth2_refresh(
       logging.info(f"OAuth2 refreshed")
       return auth
 
-async def oauth2_flow(**kwargs):
+async def oauth2_flow(force_auth=False, **kwargs):
   envfile = pathlib.Path('.env')
   auth = dotenv.dotenv_values(envfile).get('FITBIT_AUTHORIZATION')
-  if auth is None:
+  if auth is None or force_auth:
     auth = await oauth2_authorize(**kwargs)
     auth['ts'] = dt.datetime.now().timestamp()
     dotenv.set_key(envfile, 'FITBIT_AUTHORIZATION', json.dumps(auth))
+    return auth
   elif type(auth) == str:
     auth = json.loads(auth)
   #
@@ -321,6 +322,7 @@ def shared_opts(func):
   @click_option('--redirect-uri', envvar='FITBIT_REDIRECT_URI', type=str)
   @click_option('--authorization-uri', envvar='FITBIT_AUTHORIZATION_URI', type=str)
   @click_option('--token-uri', envvar='FITBIT_TOKEN_URI', type=str)
+  @click_option('--force-auth', envvar='FITBIT_FORCE_AUTHORIZATION', type=bool, is_flag=True, help='Force re-authorization')
   @functools.wraps(func)
   def wrapper(**kwargs):
     return func(**kwargs)
